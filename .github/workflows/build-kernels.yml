@@ -52,7 +52,7 @@ jobs:
           fetch-depth: 1
 
       - name: Deleting old dev release
-        uses: dev-drprasad/delete-tag-and-release@v0
+        uses: dev-drprasad/delete-tag-and-release@v2
         with:
           delete_release: true
           tag_name: dev-build
