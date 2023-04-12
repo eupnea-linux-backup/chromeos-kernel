@@ -221,7 +221,7 @@ if __name__ == "__main__":
 
     # build initramfs
     print_status("Building initramfs")
-    bash("dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.img")
+    bash("dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.cpio.gz")
     build_kernel()
     build_modules()
     build_headers()
