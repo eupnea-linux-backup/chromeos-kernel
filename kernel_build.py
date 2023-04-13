@@ -215,10 +215,6 @@ if __name__ == "__main__":
 
     clone_kernel()
 
-    # add boot logo
-    print_status("Adding boot logo")
-    cpfile("../assets/eupnea_boot_logo.ppm", "drivers/video/logo/logo_linux_clut224.ppm")
-
     # build initramfs
     print_status("Building initramfs")
     bash("dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.cpio.gz")
