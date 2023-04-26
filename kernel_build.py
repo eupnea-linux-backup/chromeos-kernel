@@ -9,7 +9,7 @@ from time import perf_counter
 from functions import *
 from functions import print_question as print_green
 
-branch_name = "release-R113-15393.B-chromeos-5.10"
+branch_name = "release-R114-15437.B-chromeos-5.10"
 
 
 # parse arguments from the cli.
