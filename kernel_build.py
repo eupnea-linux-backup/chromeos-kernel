@@ -182,6 +182,7 @@ def build_headers():
     bash("find ./headers -type f -exec strip -v {} \;")
 
     # Get kernel version
+    global kernel_version
     kernel_version = bash("file arch/x86/boot/bzImage").strip().split(" ")[8].strip()
 
     os.rename("./headers", f"./linux-headers-{kernel_version}")
@@ -217,10 +218,30 @@ if __name__ == "__main__":
 
     # build initramfs
     print_status("Building initramfs")
-    bash("dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.cpio.gz")
+    # create dummy initramfs for initial build
+    open("initramfs.cpio.xz", "w").close()
     build_kernel()
     build_modules()
     build_headers()
+    if path_exists(f"/lib/modules/{kernel_version}"):
+        print_warning("Your currently installed kernel modules conflict with the ones needed for dracut.")
+        if input("\033[92m" + "Would you like to temporarily rename your modules folder to resolve the "
+                              "conflict? (y/n):" + "\033[0m").lower() == "y":
+            bash(f"mv /lib/modules/{kernel_version} /lib/modules/{kernel_version}-backup")
+    # extract built modules into /lib/modules for initramfs
+    print_status("Extracting modules into /lib/modules")
+    bash("tar xvf ./modules.tar.xz -C /lib/modules")
+    # Generate initramfs from the built modules
+    bash('dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --force '
+         '--nofscks initramfs.cpio.xz')
+    # remove built modules
+    rmdir(f"/lib/modules/{kernel_version}", keep_dir=False)
+    # restore original modules if needed
+    with contextlib.suppress(subprocess.CalledProcessError):
+        bash(f"mv /lib/modules/{kernel_version}-backup /lib/modules/{kernel_version}")
+    # rebuild kernel with initramfs
+    print_status("Starting second build: Build kernel image with initramfs")
+    build_kernel()
 
     # copy files up one dir for artifact upload
     print_status("Copying files to actual root")
