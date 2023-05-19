@@ -38,7 +38,7 @@ def build_kernel() -> None:
 
     rmfile(".config")  # delete old config
     # copy config file from repo root
-    cpfile("../kernel.conf", "./.config")
+    cpfile("../combined-kernel.conf", "./.config")
 
     print_status("Building 5.10 kernel")
     kernel_start = perf_counter()
@@ -223,22 +223,10 @@ if __name__ == "__main__":
     build_kernel()
     build_modules()
     build_headers()
-    if path_exists(f"/lib/modules/{kernel_version}"):
-        print_warning("Your currently installed kernel modules conflict with the ones needed for dracut.")
-        if input("\033[92m" + "Would you like to temporarily rename your modules folder to resolve the "
-                              "conflict? (y/n):" + "\033[0m").lower() == "y":
-            bash(f"mv /lib/modules/{kernel_version} /lib/modules/{kernel_version}-backup")
-    # extract built modules into /lib/modules for initramfs
-    print_status("Extracting modules into /lib/modules")
-    bash("tar xvf ./modules.tar.xz -C /lib/modules")
     # Generate initramfs from the built modules
-    bash('dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --force '
-         '--nofscks initramfs.cpio.xz')
-    # remove built modules
-    rmdir(f"/lib/modules/{kernel_version}", keep_dir=False)
-    # restore original modules if needed
-    with contextlib.suppress(subprocess.CalledProcessError):
-        bash(f"mv /lib/modules/{kernel_version}-backup /lib/modules/{kernel_version}")
+    mkdir("dracut.conf.d")
+    bash(f'dracut -c ../dracut.conf --confdir ./dracut.conf.d initramfs.cpio.xz --kver={kernel_version} '
+         f'--kmoddir "./mod/lib/modules/{kernel_version}" --force')
     # rebuild kernel with initramfs
     print_status("Starting second build: Build kernel image with initramfs")
     build_kernel()
@@ -248,5 +236,6 @@ if __name__ == "__main__":
     cpfile("arch/x86/boot/bzImage", "../bzImage")
     cpfile("modules.tar.xz", "../modules.tar.xz")
     cpfile("headers.tar.xz", "../headers.tar.xz")
+    cpfile("initramfs.cpio.xz", "../initramfs.cpio.xz")
 
     print_header("Full build completed in: " + "%.0f" % (perf_counter() - script_start) + "seconds")

@@ -10,6 +10,22 @@ def bash(command: str) -> str:
 
 
 if __name__ == "__main__":
+    # pull fresh arch linux config to use as base.conf
+    urlretrieve(url="https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/linux/trunk/config",
+                filename="base.conf")
+
+    # duplicate base.conf to temp_combined.conf
+    with open("base.conf", "r") as base:
+        with open("temp_combined.conf", "w") as combined:
+            combined.write(base.read())
+
+    # append all overlays to combined.conf
+    for file in os.listdir("kernel-conf-overlays"):
+        if file != "README.md":
+            with open(f"kernel-conf-overlays/{file}", "r") as overlay:
+                with open("temp_combined.conf", "a") as combined:
+                    combined.write("\n" + overlay.read())
+
     # init chromeos kernel git repo
     bash("git init kernel")
     os.chdir("./kernel")
@@ -28,14 +44,14 @@ if __name__ == "__main__":
     # clone latest branch
     bash(f"git pull --depth=1 origin {latest_version}")
 
-    # Copy eupnea config into fresh chromeos kernel repo
-    bash("cp ../kernel.conf ./.config")
+    # Copy config into fresh chromeos kernel repo
+    bash("cp ../temp_combined.conf ./.config")
 
     # Update config
     bash("make olddefconfig")
 
     # Copy new config back to eupnea repo
-    bash("cp ./.config ../kernel.conf")
+    bash("cp ./.config ../combined-kernel.conf")
 
     # Update build script
     with open("../kernel_build.py", "r") as file:
