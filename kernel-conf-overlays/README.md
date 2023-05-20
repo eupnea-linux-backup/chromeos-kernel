@@ -76,3 +76,7 @@ Disable HyperV guest support in the kernel. This will prevent the kernel from be
 
 Disable Microsoft Surface support in the kernel. This will prevent the kernel from being run on a Microsoft Surface
 device.
+
+#### disable-debug
+
+Disable CONFIG_DEBUG_INFO_BTF which breaks kernel builds
