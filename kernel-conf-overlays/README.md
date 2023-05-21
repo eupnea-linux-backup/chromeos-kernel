@@ -11,7 +11,9 @@ interferes with the onboard graphics in games causing extremely poor performance
 
 ### initramfs
 
-Set initramfs compression to xz + set initramfs name to allow the kernel to include it.
+Set initramfs compression to xz. Reading more compressed files and decompressing from ram them is faster than reading
+uncompressed files, especially on slower storage.
+Set initramfs name to force the kernel to include it.
 
 ### iommu
 
@@ -59,6 +61,16 @@ Set the default console loglevel to 7 and quiet to 4.
 ### i2c
 
 Set i2c modules to be built into the kernel, as they are not in the initramfs.
+
+## module-compression
+
+Set module compression to xz. Reading more compressed files and decompressing from ram them is faster than reading
+uncompressed files, especially on slower storage.
+
+## bzimage-compression
+
+Set bzImage compression to xz. Reading more compressed files and decompressing from ram them is faster than reading
+uncompressed files, especially on slower storage.
 
 # Kernel cleaning
 
