@@ -1,5 +1,12 @@
 # Eupnea-ChromeOS kernel
 
+This repo has been merged into https://github.com/eupnea-project/linux-kernels
+
+<details>
+<summary>View the old readme</summary>
+
+# Eupnea-ChromeOS kernel
+
 [Kernel docs page](https://eupnea-linux.github.io/docs/project/kernels#chromeos-eupnea-kernel)
 
 # Building the Eupnea-ChromeOS kernel
